@@ -3,37 +3,56 @@ var moment = require('moment'); // require
 moment().format(); 
 const axios = require('axios');
 var keys = require("./keys.js");
-var spotify = new Spotify(keys.spotify);
+//var spotify = new Spotify(keys.spotify);
 
-const axios = require('axios').default;
+if (process.argv[2] == "concert-this") {
 
-var api1 = "https://rest.bandsintown.com/artists/"
+var api1 = "https://rest.bandsintown.com/artists/";
 var artist = process.argv[3];
-var api2 =  "https://rest.bandsintown.com/artists/"
+
+if (process.argv[4] == undefined) {
+}  else {
+    artist = process.argv[3] + "+" + process.argv[4];
+}
+if (process.argv[5] == undefined) {
+}  else { 
+    artist = process.argv[3] + "+" + process.argv[4] + "+" + process.argv[5];
+}
+if (process.argv[6] == undefined) {
+}  else { 
+    artist = process.argv[3] + "+" + process.argv[4] + "+" + process.argv[5] + "+" + process.argv[6];
+}
+//process.argv[2];
+var api2 =  "/events?app_id=codingbootcamp";
+
 
 var query = (api1 + artist + api2);
-
 axios.get(query)
   .then(function (response) {
     // handle success
-    console.log(response);
+    if (response.data.length == 0) {
+        console.log("Sorry, your search didn't return any results. Please try again")
+    }
+    console.log(response.data.length + " Results Found");
+    for (var i=0; i<response.data.length; i++) {
+        var momentFromServer = (moment(response.data[i].datetime).format("MM/DD/YYYY"));
+    console.log("Venue Name: " + response.data[i].venue.name);
+    console.log("Location: " + response.data[i].venue.location);
+    console.log("Date: " + momentFromServer);
+    console.log("-------------------");
+
+    }
   })
   .catch(function (error) {
     // handle error
-    console.log(error);
+    console.log("error occured" + error);
   })
-  .finally(function () {
-    response.end();
-  });
+}//concert this if
+else {console.log("error: please specify valid command")} //end concert-this
+
 
   //spotify API example
-  var Spotify = require('node-spotify-api');
- 
-var spotify = new Spotify({
-  id: <your spotify client id>,
-  secret: <your spotify client secret>
-});
- 
+ /*
 spotify.search({ type: 'track', query: 'All the Small Things' }, function(err, data) {
   if (err) {
     return console.log('Error occurred: ' + err);
@@ -47,3 +66,4 @@ console.log(data);
 //spotify-this
 
 //node liri.js spotify-this-song 
+*/
