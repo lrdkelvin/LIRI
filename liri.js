@@ -1,16 +1,20 @@
+
+
 require("dotenv").config();
 var moment = require('moment'); // require
 moment().format(); 
 const axios = require('axios');
 var fs = require("fs");
 
+var setting = process.argv[2];
+var input = process.argv[3]
+
 //var spotification = new Spotify(keys.spotify);
 var keys = require("./keys.js");
 var Spotify = require("node-spotify-api");
 var spotify = new Spotify(keys.spotify);
 
-
-if (process.argv[2] == "concert-this") {
+if (setting == "concert-this") {
 
 var api1 = "https://rest.bandsintown.com/artists/";
 var input = process.argv[3];
@@ -41,11 +45,10 @@ axios.get(query)
   })
 }//concert this if
 
-else if (process.argv[2] == "spotify-this-song") {
-    if (process.argv[3] == undefined) {
+else if (setting == "spotify-this-song") {
+    if (input == undefined) {
         var input = "The Sign"
     }
-    else {var input = process.argv[3]};
    
  
       spotify
@@ -68,14 +71,15 @@ else if (process.argv[2] == "spotify-this-song") {
             throw err;
         }
       });
+    
 }
-else if (process.argv[2] == "movie-this") {
+else if (setting == "movie-this") {
     var Omdb = "http://www.omdbapi.com/?i=tt3896198&apikey=35725016&t=";
-    if (process.argv[3] == undefined) {
+    if (input == undefined) {
         var query = (Omdb + 'mr nobody');
     }
     else {
-    var query = (Omdb + process.argv[3]);
+    var query = (Omdb + input);
     }
     axios.get(query)
   .then(function (response) {
@@ -100,11 +104,41 @@ else if (process.argv[2] == "movie-this") {
     console.log("error occured" + error);
  })
 }
-else if (process.argv[2] = "do-what-it-says") {
+else if (setting = "do-what-it-says") {
   fs.readFile("random.txt", "utf8", (err, data) => {
       if (!err) {
-          console.log(data);
+          var dataSplit = data.split("," ,2);
+          setting = dataSplit[0];
+          input = dataSplit[1];
+          console.log(setting);
+          console.log(input);
+          
+      spotify
+      .search({ type: 'track', query: input, limit: 1 })
+      .then(function(response) {
+          var artists = [];
+          var res = response.tracks.items[0];
+          
+        
+          for (b=0; b<res.artists.length; b++) {
+        artists.push(res.artists[b].name);
+          }
+          console.log("Artist(s): " + artists.join(" and "));
+          console.log("Song Title: " + res.name);
+          console.log("Link to Preview: " + res.preview_url);
+          console.log("Album: " + res.album.name);
+      })
+      .catch(function(err) {
+        if (err) {
+            throw err;
+        }
+      });
+
+
+       
       }
+
   })
 }
 else {console.log("error: please specify valid command")}
+
